@@ -28,26 +28,6 @@
 > **Note:**  
 > Ensure that your CORS settings in the backend allow requests from the frontend's origin (e.g., `http://localhost:5173` or `http://localhost:5175`).
 
-## Project Structure
-
-project-root/
-├── backend/
-│   ├── app.js
-│   ├── package.json
-│   └── ... (other backend files)
-└── frontend/
-    ├── src/
-    │   ├── pages/
-    │   │   ├── Home.jsx
-    │   │   ├── Login.jsx
-    │   │   ├── SignUp.jsx
-    │   │   └── Profile.jsx
-    │   ├── App.jsx
-    │   └── index.js
-    ├── package.json
-    └── ... (other frontend files)
-
-
 ## Installation
 
 ### Clone the Repository
