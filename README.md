@@ -39,10 +39,11 @@ git clone https://github.com/07asn/Front-Back-NodeJS.git
 cd your-repo
 npm install express cors cookie-parser jsonwebtoken
 nodemon app.js
+```bash
+
 
 ## 🖼️ Project Preview  
 Below are some screenshots from the project:
-
 
 ### 📸 Preview 1  
 ![Preview 1](https://drive.google.com/uc?export=view&id=1Rci514lm8SDtuMzKGok5AThr-tfrM4R_)
