@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const Profile = () => {
     const [profileData, setProfileData] = useState(null);
@@ -7,18 +8,12 @@ const Profile = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/profile', {
-                    method: 'GET',
-                    credentials: 'include'
+                const response = await axios.get('http://localhost:5000/api/profile', {
+                    withCredentials: true
                 });
-                const data = await response.json();
-                if (!response.ok) {
-                    setError(data.message);
-                } else {
-                    setProfileData(data);
-                }
+                setProfileData(response.data);
             } catch (err) {
-                setError('Failed to fetch profile data');
+                setError(err.response?.data?.message || 'Failed to fetch profile data');
             }
         };
 
