@@ -6,7 +6,7 @@
 - **In-Memory Storage** (for temporary user data)
 - **JSON Web Tokens (JWT)** for authentication
 - **Cookie Parser & CORS** for secure cross-origin requests
-
+ 
 ### Frontend:
 - **React**
 - **Tailwind CSS**
