@@ -2,13 +2,14 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = 5000;
 const SECRET_KEY = '7sn123';
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:5174',
     credentials: true
 }));
 
@@ -16,13 +17,13 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-//Storage
+// In-memory storage
 let users = [];
 
 // --------------------------
 //  Sign Up Endpoint
 // --------------------------
-app.post('/api/signup', (req, res) => {
+app.post('/api/signup', async (req, res) => {
     const { name, email, password } = req.body;
 
     // Check if user already exists
@@ -31,14 +32,23 @@ app.post('/api/signup', (req, res) => {
         return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create a new user
-    const newUser = { id: users.length + 1, name, email, password };
+    // Hash the password using bcrypt (auto-generates a salt)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user and store both unhashed and hashed password
+    const newUser = { 
+        id: users.length + 1, 
+        name, 
+        email, 
+        password,          // Unhashed password
+        hashedPassword     // Hashed password
+    };
     users.push(newUser);
 
     // Generate a JWT
     const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '1h' });
 
-    // Set token in cookie
+    // Set token in an HTTP-only cookie
     res.cookie('token', token, { httpOnly: true, secure: false });
 
     res.status(201).json({ message: 'User created', token });
@@ -50,7 +60,7 @@ app.post('/api/signup', (req, res) => {
 app.post('/api/login', (req, res) => {
     const { email, password } = req.body;
 
-    // Find user
+    // Find user by email and verify the plain-text password (for simplicity)
     const user = users.find(user => user.email === email && user.password === password);
     if (!user) {
         return res.status(401).json({ message: 'Invalid credentials' });
@@ -59,7 +69,7 @@ app.post('/api/login', (req, res) => {
     // Generate a JWT token
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
 
-    // Set the token
+    // Set the token in a cookie
     res.cookie('token', token, { httpOnly: true, secure: false });
 
     res.json({ message: 'Logged in successfully', token });
@@ -85,15 +95,18 @@ function authenticateToken(req, res, next) {
 //  Protected Profile Endpoint
 // --------------------------
 app.get('/api/profile', authenticateToken, (req, res) => {
+    // Find user based on the token data
     const user = users.find(u => u.email === req.user.email);
     if (!user) {
         return res.status(404).json({ message: 'User not found' });
     }
+    // Return only the specified fields
     res.json({
-        id: user.id,
         name: user.name,
         email: user.email,
-        message: 'This is your protected profile data'
+        jwt: req.cookies.token, // Return the token stored in cookie
+        hashedPassword: user.hashedPassword,
+        unHashedPassword: user.password
     });
 });
 
